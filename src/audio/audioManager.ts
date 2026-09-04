@@ -22,6 +22,9 @@ const effectSources: Record<SoundEvent | 'keyPress', string> = {
 let effects: Record<string, Howl> | null = null
 let music: Howl | null = null
 
+/** Long enough to feel smooth, short enough not to lag behind rapid guesses. */
+const MUSIC_FADE_MS = 900
+
 function getEffects(): Record<string, Howl> {
   effects ??= Object.fromEntries(
     Object.entries(effectSources).map(([key, src]) => [key, new Howl({ src: [src] })]),
@@ -47,8 +50,14 @@ export function ensureMusicPlaying(initialVolume: number): void {
   if (!music.playing()) music.play()
 }
 
+/** Eases toward the target volume instead of jumping, so tension changes
+ * (a round won, a fresh rematch, leaving to the main menu) are never heard
+ * as an abrupt cut. */
 export function setMusicVolume(volume: number): void {
-  music?.volume(volume)
+  if (!music) return
+  const current = music.volume()
+  if (current === volume) return
+  music.fade(current, volume, MUSIC_FADE_MS)
 }
 
 export function setMuted(muted: boolean): void {

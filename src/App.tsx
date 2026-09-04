@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { setMusicVolume } from './audio/audioManager'
 import { GameShell } from './components/GameShell'
 import { MainMenu } from './components/screens/MainMenu'
 import { MultiplayerGame } from './components/multiplayer/MultiplayerGame'
 import { SingleplayerGame } from './components/singleplayer/SingleplayerGame'
 import { MuteButton } from './components/ui/MuteButton'
+import { INITIAL_MUSIC_VOLUME } from './domain/constants'
 import { isTypingInField, useKeyPress } from './hooks/useKeyPress'
 import { useMute } from './hooks/useMute'
 
@@ -17,6 +19,13 @@ function App() {
     if (!isTypingInField()) toggleMute()
   })
 
+  const returnToMenu = useCallback(() => {
+    // The music may have ramped up during the match/run just left behind;
+    // ease it back to its resting volume instead of leaving it blaring.
+    setMusicVolume(INITIAL_MUSIC_VOLUME)
+    setMode('menu')
+  }, [])
+
   return (
     <GameShell>
       <MuteButton muted={muted} onToggle={toggleMute} />
@@ -28,8 +37,8 @@ function App() {
         />
       )}
 
-      {mode === 'multiplayer' && <MultiplayerGame onExit={() => setMode('menu')} />}
-      {mode === 'singleplayer' && <SingleplayerGame onExit={() => setMode('menu')} />}
+      {mode === 'multiplayer' && <MultiplayerGame onExit={returnToMenu} />}
+      {mode === 'singleplayer' && <SingleplayerGame onExit={returnToMenu} />}
     </GameShell>
   )
 }
