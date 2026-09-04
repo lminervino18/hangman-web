@@ -13,7 +13,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: 'hangman.spec.ts',
+      testMatch: ['hangman.spec.ts', 'singleplayer.spec.ts'],
     },
     {
       // A Chromium-based device keeps this project self-contained with the

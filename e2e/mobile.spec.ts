@@ -12,7 +12,7 @@ async function startMatchByTap(
   name1: string,
   name2: string,
 ) {
-  await page.getByRole('button', { name: 'Comenzar' }).tap()
+  await page.getByRole('button', { name: 'Dos jugadores' }).tap()
   await page.getByRole('textbox').fill(name1)
   await page.getByRole('button', { name: 'Continuar' }).tap()
   await page.getByRole('textbox').fill(name2)
@@ -170,6 +170,83 @@ test.describe('mobile gameplay', () => {
 
     await expect(page.getByTestId('winner-name')).toContainText('Ana')
     expect(await hasHorizontalOverflow(page)).toBe(false)
+  })
+})
+
+test.describe('singleplayer mobile gameplay', () => {
+  async function startSingleplayerByTap(page: import('@playwright/test').Page) {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Un jugador' }).tap()
+    await page.getByTestId('masked-word').waitFor()
+  }
+
+  test('a run can be started and played entirely by tapping', async ({ page }) => {
+    await setupDeterministicGame(page, { words: ['GATO'], random: 0 })
+    await startSingleplayerByTap(page)
+
+    expect(await hasHorizontalOverflow(page)).toBe(false)
+    await page.getByRole('button', { name: 'A', exact: true }).tap()
+    await page.getByRole('button', { name: 'Adivinar' }).tap()
+    await expect(page.getByTestId('masked-word')).toHaveText('G A _ _')
+  })
+
+  test('a long word does not overflow the viewport horizontally', async ({ page }) => {
+    await setupDeterministicGame(page, { words: ['ELECTROENCEFALOGRAFICO'], random: 0 })
+    await startSingleplayerByTap(page)
+
+    expect(await hasHorizontalOverflow(page)).toBe(false)
+    await expect(page.getByTestId('masked-word')).toBeVisible()
+  })
+
+  test('losing a run shows the result screen and fits without overflow', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, { words: ['ZXCVBN'], random: 0 })
+    await startSingleplayerByTap(page)
+
+    for (const letter of ['Q', 'R', 'S', 'T', 'U']) {
+      await page.getByRole('button', { name: letter, exact: true }).tap()
+      await page.getByRole('button', { name: 'Adivinar' }).tap()
+    }
+
+    await expect(page.getByTestId('final-streak')).toBeVisible()
+    expect(await hasHorizontalOverflow(page)).toBe(false)
+  })
+
+  test('the leave-run confirmation dialog fits the viewport and its actions are tappable', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, { words: ['GATO', 'PERRO'], random: 0 })
+    await startSingleplayerByTap(page)
+    await page.getByRole('button', { name: 'A', exact: true }).tap()
+    await page.getByRole('button', { name: 'Adivinar' }).tap()
+
+    await page.getByRole('button', { name: 'Menú principal' }).tap()
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog).toBeVisible()
+    expect(await hasHorizontalOverflow(page)).toBe(false)
+
+    await dialog.getByRole('button', { name: 'Salir al menú' }).tap()
+    await expect(page.getByRole('button', { name: 'Un jugador' })).toBeVisible()
+  })
+
+  test('the share preview fits the viewport and its close action is tappable', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, { words: ['ZXCVBN'], random: 0 })
+    await startSingleplayerByTap(page)
+    for (const letter of ['Q', 'R', 'S', 'T', 'U']) {
+      await page.getByRole('button', { name: letter, exact: true }).tap()
+      await page.getByRole('button', { name: 'Adivinar' }).tap()
+    }
+    await expect(page.getByTestId('final-streak')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Compartir resultado' }).tap()
+    await page
+      .locator('img[alt="Vista previa del resultado"]')
+      .waitFor({ state: 'visible', timeout: 10000 })
+    expect(await hasHorizontalOverflow(page)).toBe(false)
+    await page.getByRole('button', { name: 'Cerrar' }).tap()
   })
 })
 

@@ -18,7 +18,7 @@ export async function goToIntro(page: Page) {
 }
 
 export async function startMatch(page: Page, name1 = 'Ana', name2 = 'Beto') {
-  await page.getByRole('button', { name: 'Comenzar' }).click()
+  await page.getByRole('button', { name: 'Dos jugadores' }).click()
   await page.getByRole('textbox').fill(name1)
   await page.getByRole('button', { name: 'Continuar' }).click()
   await page.getByRole('textbox').fill(name2)

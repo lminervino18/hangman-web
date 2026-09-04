@@ -8,23 +8,16 @@ import {
   startMatch,
 } from './helpers'
 
-test.describe('intro and menu', () => {
-  test('the app starts on the intro screen and the game can be started', async ({
-    page,
-  }) => {
+test.describe('main menu', () => {
+  test('offers both game modes and the game can be started', async ({ page }) => {
     await setupDeterministicGame(page, { words: ['GATO'] })
     await goToIntro(page)
 
     await expect(page.getByRole('heading', { name: 'The Hangman Game' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Dos jugadores' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Un jugador' })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Comenzar' }).click()
-    await expect(page.getByRole('heading', { name: /Jugador 1/ })).toBeVisible()
-  })
-
-  test('pressing Enter on the intro screen also starts the game', async ({ page }) => {
-    await setupDeterministicGame(page, { words: ['GATO'] })
-    await goToIntro(page)
-    await page.keyboard.press('Enter')
+    await page.getByRole('button', { name: 'Dos jugadores' }).click()
     await expect(page.getByRole('heading', { name: /Jugador 1/ })).toBeVisible()
   })
 })
@@ -33,7 +26,7 @@ test.describe('name entry', () => {
   test('rejects a too-short name and accepts a valid one', async ({ page }) => {
     await setupDeterministicGame(page, { words: ['GATO'] })
     await goToIntro(page)
-    await page.getByRole('button', { name: 'Comenzar' }).click()
+    await page.getByRole('button', { name: 'Dos jugadores' }).click()
 
     const continueButton = page.getByRole('button', { name: 'Continuar' })
     await page.getByRole('textbox').fill('A')
@@ -208,17 +201,7 @@ test.describe('gameplay: full-word guesses', () => {
 })
 
 test.describe('match completion', () => {
-  test('winning 3 rounds ends the match and restart returns to the intro screen', async ({
-    page,
-  }) => {
-    await setupDeterministicGame(page, {
-      words: ['AB', 'CD', 'EF'],
-      random: 0,
-      startingPlayer: 'player1',
-    })
-    await goToIntro(page)
-    await startMatch(page)
-
+  async function playToMatchWin(page: import('@playwright/test').Page) {
     // Round 1: player1 is active, guess the word correctly.
     await guessWord(page, 'AB')
     // Round 2: player2 is now active; a valid-but-wrong guess hands the
@@ -226,12 +209,66 @@ test.describe('match completion', () => {
     await guessWord(page, 'CZ')
     // Round 3: player1 active again, guess correctly for the match win.
     await guessWord(page, 'EF')
+  }
+
+  test('winning 3 rounds ends the match and shows the journey', async ({ page }) => {
+    await setupDeterministicGame(page, {
+      words: ['AB', 'CD', 'EF'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+    await playToMatchWin(page)
 
     await expect(page.getByTestId('winner-name')).toContainText('Ana')
-    await expect(page.getByRole('button', { name: 'Jugar de nuevo' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Revancha' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Menú principal' })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Jugar de nuevo' }).click()
+    const journey = page.locator('text=Tu recorrido').locator('..')
+    await expect(journey.getByRole('link', { name: /AB/ })).toBeVisible()
+    await expect(journey.getByRole('link', { name: /CD/ })).toBeVisible()
+    await expect(journey.getByRole('link', { name: /EF/ })).toBeVisible()
+  })
+
+  test('quick rematch keeps the same players and starts a fresh round', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, {
+      words: ['AB', 'CD', 'EF', 'GH'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+    await playToMatchWin(page)
+
+    await page.getByRole('button', { name: 'Revancha' }).click()
+
+    await expect(page.getByTestId('masked-word')).toBeVisible()
+    await expect(page.getByTestId('player-panel-player1')).toContainText('Ana')
+    await expect(page.getByTestId('player-panel-player2')).toContainText('Beto')
+    await expect(
+      page.getByTestId('player-panel-player1').locator('img[src$="trophy.png"]'),
+    ).toHaveCount(0)
+    await expect(
+      page.getByTestId('player-panel-player1').locator('img[src$="heart.png"]'),
+    ).toHaveCount(5)
+  })
+
+  test('leaving from the end screen returns to the main menu', async ({ page }) => {
+    await setupDeterministicGame(page, {
+      words: ['AB', 'CD', 'EF'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+    await playToMatchWin(page)
+
+    await page.getByRole('button', { name: 'Menú principal' }).click()
     await expect(page.getByRole('heading', { name: 'The Hangman Game' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Dos jugadores' })).toBeVisible()
   })
 })
 
