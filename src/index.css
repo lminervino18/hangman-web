@@ -1,11 +1,37 @@
 :root {
   color-scheme: light;
+
+  --color-violet: #300944;
+  --color-gray: #36383f;
+  --color-red: #ea0c05;
+  --color-green: #43c606;
+  --color-ink: #241531;
+  --color-surface: rgba(255, 255, 255, 0.88);
+  --color-surface-strong: rgba(255, 255, 255, 0.96);
+
+  --font-game: 'Comic Neue', 'Comic Sans MS', 'Segoe UI', system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  font-family: var(--font-game);
+  color: var(--color-ink);
+}
+
+button {
+  font-family: inherit;
+}
+
+input {
+  font-family: inherit;
 }

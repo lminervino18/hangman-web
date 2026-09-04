@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 4vw, 2rem);
+  text-align: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background: var(--color-surface);
+  border-radius: 1.5rem;
+  max-width: 40rem;
+  width: 100%;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.4rem, 5vw, 2.5rem);
+  color: var(--color-violet);
+}
+
+.person {
+  width: clamp(8rem, 30vw, 16rem);
+  height: auto;
+}
+
+.prompt {
+  margin: 0;
+  font-size: clamp(0.9rem, 3vw, 1.25rem);
+  color: var(--color-ink);
+}
+
+.button {
+  font-family: inherit;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  padding: 0.75em 2em;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-violet);
+  color: white;
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(1.15);
+}
