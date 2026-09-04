@@ -8,6 +8,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: clamp(0.75rem, 3vw, 2.5rem);
+  /* Extra top clearance so the fixed-position corner buttons (menu, mute)
+     never sit on top of centered content on short viewports. */
+  padding: clamp(3.5rem, 10vw, 4.5rem) clamp(0.75rem, 3vw, 2.5rem) clamp(0.75rem, 3vw, 2.5rem);
   overflow-x: hidden;
+}
+
+/* On short viewports (small phones, landscape phones), centering can push
+   content taller than the screen half above and half below the fold, making
+   both ends unreachable without knowing to scroll. Top-align instead, so the
+   top is always visible and the rest is a normal scroll away. */
+@media (max-height: 700px) {
+  .shell {
+    justify-content: flex-start;
+  }
 }

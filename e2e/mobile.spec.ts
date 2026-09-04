@@ -283,3 +283,56 @@ test.describe('tablet viewport', () => {
     expect(await hasHorizontalOverflow(page)).toBe(false)
   })
 })
+
+function boundingBoxesOverlap(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+): boolean {
+  const overlapsVertically = a.y < b.y + b.height && b.y < a.y + a.height
+  const overlapsHorizontally = a.x < b.x + b.width && b.x < a.x + a.width
+  return overlapsVertically && overlapsHorizontally
+}
+
+// A tall word plus a short viewport is what actually pushed content up
+// against the fixed corner buttons; a short word never grew tall enough to
+// reproduce the overlap this regression guards against.
+test.describe('short viewport with tall content (320x568)', () => {
+  test.use({ viewport: { width: 320, height: 568 } })
+
+  test("the fixed menu button never overlaps the battle screen's own heading", async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, {
+      words: ['ELECTROENCEFALOGRAFICO'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatchByTap(page, 'Ana', 'Beto')
+
+    const menuButton = await page.getByRole('button', { name: 'Menú principal' }).boundingBox()
+    const turnHeading = await page.getByTestId('turn-indicator').boundingBox()
+    expect(menuButton).not.toBeNull()
+    expect(turnHeading).not.toBeNull()
+    if (menuButton && turnHeading) {
+      expect(boundingBoxesOverlap(menuButton, turnHeading)).toBe(false)
+    }
+  })
+
+  test("the fixed menu button never overlaps the singleplayer streak header", async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, { words: ['ELECTROENCEFALOGRAFICO'], random: 0 })
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Un jugador' }).tap()
+    await page.getByTestId('masked-word').waitFor()
+
+    const menuButton = await page.getByRole('button', { name: 'Menú principal' }).boundingBox()
+    const streakHeading = await page.getByTestId('streak').boundingBox()
+    expect(menuButton).not.toBeNull()
+    expect(streakHeading).not.toBeNull()
+    if (menuButton && streakHeading) {
+      expect(boundingBoxesOverlap(menuButton, streakHeading)).toBe(false)
+    }
+  })
+})
