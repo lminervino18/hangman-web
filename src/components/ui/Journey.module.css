@@ -1,0 +1,44 @@
+.section {
+  width: 100%;
+  text-align: left;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(0.9rem, 3vw, 1.05rem);
+  color: var(--color-violet);
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  max-height: 11rem;
+  overflow-y: auto;
+  padding: 0.15rem 0.25rem 0.15rem 0.15rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35em 0.7em;
+  border-radius: 0.6rem;
+  border-left: 4px solid transparent;
+  background: var(--color-surface-strong);
+  font-size: clamp(0.75rem, 2.3vw, 0.9rem);
+  color: var(--color-ink);
+  text-decoration: none;
+  min-height: 32px;
+}
+
+.chip:hover,
+.chip:focus-visible {
+  filter: brightness(0.97);
+}
+
+.caption {
+  font-size: 0.85em;
+  color: var(--color-gray);
+}

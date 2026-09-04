@@ -4,9 +4,14 @@ import styles from './LastWordLink.module.css'
 interface LastWordLinkProps {
   word: string
   testId?: string
+  label?: string
 }
 
-export function LastWordLink({ word, testId }: LastWordLinkProps) {
+export function LastWordLink({
+  word,
+  testId,
+  label = 'Última palabra',
+}: LastWordLinkProps) {
   if (!word) {
     return (
       <p className={styles.text} data-testid={testId}>
@@ -17,7 +22,7 @@ export function LastWordLink({ word, testId }: LastWordLinkProps) {
 
   return (
     <p className={styles.text} data-testid={testId}>
-      Última palabra:{' '}
+      {label}:{' '}
       <a
         className={styles.link}
         href={buildDictionaryUrl(word)}
