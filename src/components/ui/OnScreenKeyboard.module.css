@@ -1,0 +1,39 @@
+.keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  max-width: 32rem;
+}
+
+.key {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: clamp(0.75rem, 2.5vw, 1rem);
+  width: clamp(1.6rem, 6vw, 2.1rem);
+  height: clamp(1.9rem, 7vw, 2.4rem);
+  border-radius: 0.4rem;
+  border: none;
+  background: var(--color-surface-strong);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.key:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.key:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.correct {
+  background: var(--color-green);
+  color: white;
+}
+
+.wrong {
+  background: var(--color-red);
+  color: white;
+}
