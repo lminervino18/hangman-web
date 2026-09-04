@@ -21,3 +21,11 @@
   font-size: clamp(1.3rem, 6vw, 2.1rem);
   color: var(--color-violet);
 }
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 18rem;
+}

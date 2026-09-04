@@ -1,15 +1,21 @@
 import { Howl, Howler } from 'howler'
 import type { GameEvent } from '../domain/types'
+import type { SingleplayerEvent } from '../domain/singleplayer/types'
+
+export type SoundEvent = GameEvent | SingleplayerEvent
 
 const ASSET_BASE = '/assets/audio'
 
-const effectSources: Record<GameEvent | 'keyPress', string> = {
+const effectSources: Record<SoundEvent | 'keyPress', string> = {
   roundPoint: `${ASSET_BASE}/point.mp3`,
   wrongLetter: `${ASSET_BASE}/wrong-letter.mp3`,
   wordComplete: `${ASSET_BASE}/word-complete.mp3`,
   wrongWordAttempt: `${ASSET_BASE}/wrong-word-attempt.mp3`,
   nextRound: `${ASSET_BASE}/next-round.mp3`,
   matchWon: `${ASSET_BASE}/victory.mp3`,
+  milestone: `${ASSET_BASE}/victory.mp3`,
+  newRecord: `${ASSET_BASE}/victory.mp3`,
+  runEnded: `${ASSET_BASE}/wrong-word-attempt.mp3`,
   keyPress: `${ASSET_BASE}/key-press.mp3`,
 }
 
@@ -23,7 +29,7 @@ function getEffects(): Record<string, Howl> {
   return effects
 }
 
-export function playEventSound(event: GameEvent): void {
+export function playEventSound(event: SoundEvent): void {
   getEffects()[event]?.play()
 }
 

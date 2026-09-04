@@ -1,23 +1,19 @@
-import { useState } from 'react'
-import { setMuted } from '../../audio/audioManager'
 import styles from './MuteButton.module.css'
 
-export function MuteButton() {
-  const [muted, setMutedState] = useState(false)
+interface MuteButtonProps {
+  muted: boolean
+  onToggle: () => void
+}
 
-  function toggle() {
-    const next = !muted
-    setMutedState(next)
-    setMuted(next)
-  }
-
+export function MuteButton({ muted, onToggle }: MuteButtonProps) {
   return (
     <button
       type="button"
       className={styles.button}
-      onClick={toggle}
+      onClick={onToggle}
       aria-label={muted ? 'Activar sonido' : 'Silenciar sonido'}
       aria-pressed={muted}
+      title="M · Silenciar"
     >
       {muted ? '🔇' : '🔊'}
     </button>

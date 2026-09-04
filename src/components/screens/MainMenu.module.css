@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.25rem, 4vw, 2rem);
+  text-align: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background: var(--color-surface);
+  border-radius: 1.5rem;
+  max-width: 40rem;
+  width: 100%;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.4rem, 5vw, 2.5rem);
+  color: var(--color-violet);
+}
+
+.person {
+  width: clamp(7rem, 26vw, 14rem);
+  aspect-ratio: 800 / 600;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.modeCard {
+  flex: 1 1 14rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-radius: 1.1rem;
+  border: 2px solid var(--color-violet);
+  background: white;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-ink);
+  min-height: 44px;
+}
+
+.modeCard:hover {
+  background: rgba(48, 9, 68, 0.06);
+}
+
+.modeCard:active {
+  background: rgba(48, 9, 68, 0.14);
+}
+
+.modeName {
+  font-size: clamp(1.05rem, 3.5vw, 1.3rem);
+  font-weight: 700;
+  color: var(--color-violet);
+}
+
+.modeHint {
+  margin: 0;
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  color: var(--color-gray);
+}
+
+.bestStreak {
+  margin: 0;
+  font-size: clamp(0.75rem, 2.3vw, 0.9rem);
+  color: var(--color-gray);
+}
