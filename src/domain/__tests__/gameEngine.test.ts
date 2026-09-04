@@ -30,10 +30,9 @@ function run(state: GameState, action: GameAction, deps: GameDependencies): Game
   return applyAction(state, action, deps).state
 }
 
-/** Drives intro -> nameEntry -> battle, with word "AB" as the first round. */
+/** Drives nameEntry -> battle, with word "AB" as the first round. */
 function reachBattle(deps: GameDependencies): GameState {
   let state = createInitialState(deps)
-  state = run(state, { type: 'START_GAME' }, deps)
   state = run(state, { type: 'NAME_DRAFT_CHANGED', value: 'Ana' }, deps)
   state = run(state, { type: 'NAME_SUBMITTED' }, deps)
   state = run(state, { type: 'NAME_DRAFT_CHANGED', value: 'Beto' }, deps)
@@ -66,14 +65,8 @@ function depleteRoundByMisses(state: GameState, deps: GameDependencies) {
 }
 
 describe('screen transitions', () => {
-  it('starts on the intro screen', () => {
+  it('starts on the name entry screen for player1', () => {
     const state = createInitialState(makeDeps(['AB']))
-    expect(state.screen).toBe('intro')
-  })
-
-  it('moves from intro to name entry for player1', () => {
-    const deps = makeDeps(['AB'])
-    const state = run(createInitialState(deps), { type: 'START_GAME' }, deps)
     expect(state.screen).toBe('nameEntry')
     expect(state.nameEntryTarget).toBe('player1')
   })
@@ -89,7 +82,7 @@ describe('screen transitions', () => {
 
   it('rejects an invalid name and stays on the same entry step', () => {
     const deps = makeDeps(['AB'])
-    let state = run(createInitialState(deps), { type: 'START_GAME' }, deps)
+    let state = createInitialState(deps)
     state = run(state, { type: 'NAME_DRAFT_CHANGED', value: 'A' }, deps)
     state = run(state, { type: 'NAME_SUBMITTED' }, deps)
     expect(state.screen).toBe('nameEntry')
@@ -256,35 +249,55 @@ describe('match win detection', () => {
   })
 })
 
-describe('returning to the menu', () => {
-  it('returns to a completely fresh initial state from the end screen', () => {
-    const deps = makeDeps(['AB', 'CD', 'EF'])
+describe('rematch (quick replay with the same players)', () => {
+  it('keeps both player names but resets points, lives and history', () => {
+    const deps = makeDeps(['AB', 'CD', 'EF', 'GH'])
     const state = reachBattle(deps)
     let lastResult: ReducerResult = { state, events: [] }
     for (let round = 0; round < POINTS_TO_WIN_MATCH; round += 1) {
       lastResult = scorePointForPlayer1(lastResult.state, deps)
     }
     expect(lastResult.state.screen).toBe('end')
+    expect(lastResult.state.history.length).toBe(POINTS_TO_WIN_MATCH)
 
-    const restarted = run(lastResult.state, { type: 'RETURN_TO_MENU' }, deps)
-    expect(restarted.screen).toBe('intro')
-    expect(restarted.players.player1.name).toBe('')
-    expect(restarted.players.player1.points).toBe(0)
-    expect(restarted.winner).toBeNull()
+    const rematch = run(lastResult.state, { type: 'REMATCH' }, deps)
+    expect(rematch.screen).toBe('battle')
+    expect(rematch.players.player1.name).toBe('Ana')
+    expect(rematch.players.player2.name).toBe('Beto')
+    expect(rematch.players.player1.points).toBe(0)
+    expect(rematch.players.player2.points).toBe(0)
+    expect(rematch.players.player1.lives).toBe(LIVES_PER_ROUND)
+    expect(rematch.history).toEqual([])
+    expect(rematch.winner).toBeNull()
+    expect(rematch.round.word.length).toBeGreaterThan(0)
   })
 
-  it('also resets to a fresh state from mid-match, so leaving an active game works', () => {
+  it('is a no-op outside of the end screen', () => {
     const deps = makeDeps(['AB'])
     const state = reachBattle(deps)
-    const restarted = run(state, { type: 'RETURN_TO_MENU' }, deps)
-    expect(restarted.screen).toBe('intro')
+    const result = applyAction(state, { type: 'REMATCH' }, deps)
+    expect(result.state).toBe(state)
+  })
+})
+
+describe('round history ("Tu recorrido")', () => {
+  it('records each completed round with its word and winner, in order', () => {
+    const deps = makeDeps(['AB', 'CD', 'EF'])
+    const state = reachBattle(deps)
+    const afterRoundOne = scorePointForPlayer1(state, deps)
+    const afterRoundTwo = scorePointForPlayer1(afterRoundOne.state, deps)
+
+    expect(afterRoundTwo.state.history).toEqual([
+      { word: 'AB', winner: 'player1' },
+      { word: 'CD', winner: 'player1' },
+    ])
   })
 
-  it('is a no-op from the intro screen itself', () => {
-    const deps = makeDeps(['AB'])
-    const state = createInitialState(deps)
-    const result = applyAction(state, { type: 'RETURN_TO_MENU' }, deps)
-    expect(result.state).toBe(state)
+  it('records the opponent as the winner when a round is lost by lives or a wrong full-word guess', () => {
+    const deps = makeDeps(['AXXXXX', 'CD'])
+    const state = reachBattle(deps)
+    const result = depleteRoundByMisses(state, deps)
+    expect(result.state.history).toEqual([{ word: 'AXXXXX', winner: 'player2' }])
   })
 })
 

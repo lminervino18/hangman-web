@@ -1,4 +1,4 @@
-import type { LetterCell } from './types'
+import type { LetterCell } from './sharedTypes'
 
 /**
  * A guess is valid to submit when it is either:

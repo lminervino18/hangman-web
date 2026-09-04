@@ -21,7 +21,7 @@ const emptyPlayer = { name: '', lives: LIVES_PER_ROUND, points: 0 }
 
 export function createInitialState(deps: GameDependencies): GameState {
   return {
-    screen: 'intro',
+    screen: 'nameEntry',
     nameEntryTarget: 'player1',
     nameEntryDraft: '',
     players: {
@@ -34,6 +34,7 @@ export function createInitialState(deps: GameDependencies): GameState {
     winner: null,
     lastCompletedWord: '',
     musicVolume: INITIAL_MUSIC_VOLUME,
+    history: [],
   }
 }
 
@@ -69,6 +70,10 @@ function withPoint(state: GameState, winner: PlayerId): GameState {
       [winner]: { ...state.players[winner], points: state.players[winner].points + 1 },
     },
   }
+}
+
+function recordRound(state: GameState, word: string, winner: PlayerId): GameState {
+  return { ...state, history: [...state.history, { word, winner }] }
 }
 
 function checkMatchWinner(state: GameState): { state: GameState; won: boolean } {
@@ -107,8 +112,10 @@ function resolveGuess(state: GameState, deps: GameDependencies): ReducerResult {
       events.push('wrongLetter')
 
       if (lives <= 0) {
-        next = { ...next, lastCompletedWord: fullWord(cells) }
-        next = withPoint(next, otherPlayer(guesser))
+        const word = fullWord(cells)
+        const winner = otherPlayer(guesser)
+        next = { ...next, lastCompletedWord: word }
+        next = recordRound(withPoint(next, winner), word, winner)
         next = startNextRound(next, deps)
         events.push('wrongWordAttempt', 'nextRound')
         const { state: withWinner, won } = checkMatchWinner(next)
@@ -128,9 +135,10 @@ function resolveGuess(state: GameState, deps: GameDependencies): ReducerResult {
     }
 
     if (isRoundComplete(outcome.cells)) {
+      const word = fullWord(outcome.cells)
       events.push('wordComplete', 'nextRound')
-      next = { ...next, lastCompletedWord: fullWord(outcome.cells) }
-      next = increaseVolume(withPoint(next, guesser))
+      next = { ...next, lastCompletedWord: word }
+      next = recordRound(increaseVolume(withPoint(next, guesser)), word, guesser)
       next = startNextRound(next, deps)
       const { state: withWinner, won } = checkMatchWinner(next)
       if (won) events.push('matchWon')
@@ -144,13 +152,15 @@ function resolveGuess(state: GameState, deps: GameDependencies): ReducerResult {
   const outcome = applyFullWordGuess(cells, guess)
 
   if (!outcome.correct) {
+    const word = fullWord(cells)
+    const winner = otherPlayer(guesser)
     let next: GameState = {
       ...state,
       currentInput: '',
-      lastCompletedWord: fullWord(cells),
+      lastCompletedWord: word,
       round: { ...state.round, wrongEntries: [...wrongEntries, guess] },
     }
-    next = increaseVolume(withPoint(next, otherPlayer(guesser)))
+    next = recordRound(increaseVolume(withPoint(next, winner)), word, winner)
     next = startNextRound(next, deps)
     events.push('wrongWordAttempt', 'nextRound')
     const { state: withWinner, won } = checkMatchWinner(next)
@@ -158,18 +168,37 @@ function resolveGuess(state: GameState, deps: GameDependencies): ReducerResult {
     return { state: withWinner, events }
   }
 
+  const word = fullWord(outcome.cells)
   let next: GameState = {
     ...state,
     currentInput: '',
-    lastCompletedWord: fullWord(outcome.cells),
+    lastCompletedWord: word,
     round: { ...state.round, cells: outcome.cells },
   }
-  next = increaseVolume(withPoint(next, guesser))
+  next = recordRound(increaseVolume(withPoint(next, guesser)), word, guesser)
   next = startNextRound(next, deps)
   events.push('wordComplete', 'nextRound')
   const { state: withWinner, won } = checkMatchWinner(next)
   if (won) events.push('matchWon')
   return { state: withWinner, events }
+}
+
+function rematch(state: GameState, deps: GameDependencies): GameState {
+  return {
+    ...state,
+    screen: 'battle',
+    players: {
+      player1: { ...state.players.player1, lives: LIVES_PER_ROUND, points: 0 },
+      player2: { ...state.players.player2, lives: LIVES_PER_ROUND, points: 0 },
+    },
+    activePlayer: deps.pickStartingPlayer(),
+    currentInput: '',
+    round: createRound(deps.pickWord(), deps.random),
+    winner: null,
+    lastCompletedWord: '',
+    musicVolume: INITIAL_MUSIC_VOLUME,
+    history: [],
+  }
 }
 
 export function applyAction(
@@ -178,19 +207,6 @@ export function applyAction(
   deps: GameDependencies,
 ): ReducerResult {
   switch (action.type) {
-    case 'START_GAME': {
-      if (state.screen !== 'intro') return { state, events: [] }
-      return {
-        state: {
-          ...state,
-          screen: 'nameEntry',
-          nameEntryTarget: 'player1',
-          nameEntryDraft: '',
-        },
-        events: [],
-      }
-    }
-
     case 'NAME_DRAFT_CHANGED': {
       if (state.screen !== 'nameEntry') return { state, events: [] }
       return { state: { ...state, nameEntryDraft: action.value }, events: [] }
@@ -234,9 +250,9 @@ export function applyAction(
       return resolveGuess(state, deps)
     }
 
-    case 'RETURN_TO_MENU': {
-      if (state.screen === 'intro') return { state, events: [] }
-      return { state: createInitialState(deps), events: [] }
+    case 'REMATCH': {
+      if (state.screen !== 'end') return { state, events: [] }
+      return { state: rematch(state, deps), events: ['nextRound'] }
     }
 
     default:

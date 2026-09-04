@@ -1,5 +1,5 @@
 import { normalizeWord } from './normalize'
-import type { LetterCell, RoundState } from './types'
+import type { LetterCell, RoundState } from './sharedTypes'
 
 /**
  * Builds a new round from a raw word, pre-revealing every occurrence of one
@@ -34,4 +34,9 @@ export function isRoundComplete(cells: readonly LetterCell[]): boolean {
 
 export function fullWord(cells: readonly LetterCell[]): string {
   return cells.map((cell) => cell.letter).join('')
+}
+
+/** Only single-letter entries cost a life; a failed full-word guess ends the round outright. */
+export function mistakeCount(wrongEntries: readonly string[]): number {
+  return wrongEntries.filter((entry) => entry.length === 1).length
 }

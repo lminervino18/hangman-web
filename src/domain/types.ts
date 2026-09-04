@@ -1,11 +1,10 @@
+import type { RoundState } from './sharedTypes'
+
+export type { LetterCell, RoundState } from './sharedTypes'
+
 export type PlayerId = 'player1' | 'player2'
 
-export type ScreenId = 'intro' | 'nameEntry' | 'battle' | 'end'
-
-export interface LetterCell {
-  readonly letter: string
-  readonly revealed: boolean
-}
+export type ScreenId = 'nameEntry' | 'battle' | 'end'
 
 export interface PlayerState {
   readonly name: string
@@ -13,10 +12,9 @@ export interface PlayerState {
   readonly points: number
 }
 
-export interface RoundState {
+export interface RoundHistoryEntry {
   readonly word: string
-  readonly cells: readonly LetterCell[]
-  readonly wrongEntries: readonly string[]
+  readonly winner: PlayerId
 }
 
 export interface GameState {
@@ -30,15 +28,15 @@ export interface GameState {
   readonly winner: PlayerId | null
   readonly lastCompletedWord: string
   readonly musicVolume: number
+  readonly history: readonly RoundHistoryEntry[]
 }
 
 export type GameAction =
-  | { type: 'START_GAME' }
   | { type: 'NAME_DRAFT_CHANGED'; value: string }
   | { type: 'NAME_SUBMITTED' }
   | { type: 'GUESS_DRAFT_CHANGED'; value: string }
   | { type: 'GUESS_SUBMITTED' }
-  | { type: 'RETURN_TO_MENU' }
+  | { type: 'REMATCH' }
 
 export interface GameDependencies {
   readonly pickWord: () => string
