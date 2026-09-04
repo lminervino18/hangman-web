@@ -1,0 +1,25 @@
+.button {
+  position: fixed;
+  top: clamp(0.5rem, 2vw, 1.25rem);
+  left: clamp(0.5rem, 2vw, 1.25rem);
+  z-index: var(--z-controls);
+  height: clamp(2.5rem, 5vw, 2.75rem);
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-surface-strong);
+  color: var(--color-ink);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.button:hover {
+  background: #fff;
+}
+
+.button:active {
+  filter: brightness(0.95);
+}

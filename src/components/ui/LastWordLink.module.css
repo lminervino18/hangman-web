@@ -1,0 +1,28 @@
+.text {
+  margin: 0;
+  font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  color: var(--color-gray);
+  min-height: 1.2em;
+}
+
+.link {
+  color: var(--color-violet);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+.link:active {
+  color: var(--color-green);
+}
+
+.icon {
+  font-size: 0.85em;
+  margin-left: 0.15em;
+}
