@@ -38,7 +38,7 @@ export type GameAction =
   | { type: 'NAME_SUBMITTED' }
   | { type: 'GUESS_DRAFT_CHANGED'; value: string }
   | { type: 'GUESS_SUBMITTED' }
-  | { type: 'MATCH_RESTARTED' }
+  | { type: 'RETURN_TO_MENU' }
 
 export interface GameDependencies {
   readonly pickWord: () => string

@@ -8,10 +8,9 @@ import { resolveGameDependencies } from '../testHooks'
 export function useGame() {
   const deps = useMemo(() => resolveGameDependencies(defaultGameDependencies), [])
   const [state, setState] = useState<GameState>(() => createInitialState(deps))
+  // Mirrors `state` so dispatch can read the latest value without depending
+  // on it (dispatch is the only writer, so this never drifts from `state`).
   const stateRef = useRef(state)
-  useEffect(() => {
-    stateRef.current = state
-  }, [state])
 
   const dispatch = useCallback(
     (action: GameAction) => {

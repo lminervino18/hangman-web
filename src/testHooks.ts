@@ -24,6 +24,8 @@ export function resolveGameDependencies(defaults: GameDependencies): GameDepende
 
   let wordIndex = 0
   const words = overrides.words
+  const startingPlayer = overrides.startingPlayer
+  const random = overrides.random
 
   return {
     pickWord: words
@@ -34,9 +36,9 @@ export function resolveGameDependencies(defaults: GameDependencies): GameDepende
           return word
         }
       : defaults.pickWord,
-    pickStartingPlayer: overrides.startingPlayer
-      ? () => overrides.startingPlayer!
+    pickStartingPlayer: startingPlayer
+      ? () => startingPlayer
       : defaults.pickStartingPlayer,
-    random: overrides.random !== undefined ? () => overrides.random! : defaults.random,
+    random: random !== undefined ? () => random : defaults.random,
   }
 }

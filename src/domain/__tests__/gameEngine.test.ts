@@ -256,7 +256,7 @@ describe('match win detection', () => {
   })
 })
 
-describe('match restart', () => {
+describe('returning to the menu', () => {
   it('returns to a completely fresh initial state from the end screen', () => {
     const deps = makeDeps(['AB', 'CD', 'EF'])
     const state = reachBattle(deps)
@@ -266,17 +266,24 @@ describe('match restart', () => {
     }
     expect(lastResult.state.screen).toBe('end')
 
-    const restarted = run(lastResult.state, { type: 'MATCH_RESTARTED' }, deps)
+    const restarted = run(lastResult.state, { type: 'RETURN_TO_MENU' }, deps)
     expect(restarted.screen).toBe('intro')
     expect(restarted.players.player1.name).toBe('')
     expect(restarted.players.player1.points).toBe(0)
     expect(restarted.winner).toBeNull()
   })
 
-  it('ignores MATCH_RESTARTED outside of the end screen', () => {
+  it('also resets to a fresh state from mid-match, so leaving an active game works', () => {
     const deps = makeDeps(['AB'])
     const state = reachBattle(deps)
-    const result = applyAction(state, { type: 'MATCH_RESTARTED' }, deps)
+    const restarted = run(state, { type: 'RETURN_TO_MENU' }, deps)
+    expect(restarted.screen).toBe('intro')
+  })
+
+  it('is a no-op from the intro screen itself', () => {
+    const deps = makeDeps(['AB'])
+    const state = createInitialState(deps)
+    const result = applyAction(state, { type: 'RETURN_TO_MENU' }, deps)
     expect(result.state).toBe(state)
   })
 })
@@ -299,8 +306,8 @@ describe('music volume', () => {
   })
 })
 
-describe('unknown player id helper coverage', () => {
-  it('starting player can be player2', () => {
+describe('starting player selection', () => {
+  it('honors a starting player of player2', () => {
     const deps = makeDeps(['AB'], { pickStartingPlayer: () => 'player2' as PlayerId })
     const state = reachBattle(deps)
     expect(state.activePlayer).toBe('player2')

@@ -234,8 +234,8 @@ export function applyAction(
       return resolveGuess(state, deps)
     }
 
-    case 'MATCH_RESTARTED': {
-      if (state.screen !== 'end') return { state, events: [] }
+    case 'RETURN_TO_MENU': {
+      if (state.screen === 'intro') return { state, events: [] }
       return { state: createInitialState(deps), events: [] }
     }
 
@@ -243,5 +243,3 @@ export function applyAction(
       return { state, events: [] }
   }
 }
-
-export { otherPlayer }

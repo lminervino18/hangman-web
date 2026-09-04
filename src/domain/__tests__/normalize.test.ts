@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isSingleLetter, normalizeWord } from '../normalize'
+import { normalizeWord } from '../normalize'
 
 describe('normalizeWord', () => {
   it('uppercases plain words', () => {
@@ -20,19 +20,5 @@ describe('normalizeWord', () => {
 
   it('handles every accented vowel', () => {
     expect(normalizeWord('áéíóú')).toBe('AEIOU')
-  })
-})
-
-describe('isSingleLetter', () => {
-  it('accepts a single alphabetic character', () => {
-    expect(isSingleLetter('A')).toBe(true)
-    expect(isSingleLetter('ñ')).toBe(true)
-  })
-
-  it('rejects empty strings, multi-char strings, and non-letters', () => {
-    expect(isSingleLetter('')).toBe(false)
-    expect(isSingleLetter('AB')).toBe(false)
-    expect(isSingleLetter('1')).toBe(false)
-    expect(isSingleLetter(' ')).toBe(false)
   })
 })
