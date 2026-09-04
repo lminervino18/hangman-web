@@ -32,3 +32,10 @@
   width: clamp(0.9rem, 3vw, 1.15rem);
   height: clamp(0.9rem, 3vw, 1.15rem);
 }
+
+@media (max-width: 26rem) {
+  .panel {
+    padding: 0.5rem;
+    min-width: 5rem;
+  }
+}

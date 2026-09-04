@@ -1,3 +1,4 @@
+import { IMAGES } from '../../ui/images'
 import type { PlayerId, PlayerState } from '../../domain/types'
 import { Gallows } from './Gallows'
 import styles from './PlayerPanel.module.css'
@@ -7,6 +8,16 @@ interface PlayerPanelProps {
   player: PlayerState
   isActive: boolean
   mirrored?: boolean
+}
+
+function IconRow({ count, src, label }: { count: number; src: string; label: string }) {
+  return (
+    <div className={styles.icons} aria-label={label}>
+      {Array.from({ length: count }, (_, index) => (
+        <img key={index} className={styles.icon} src={src} alt="" />
+      ))}
+    </div>
+  )
 }
 
 export function PlayerPanel({
@@ -20,26 +31,14 @@ export function PlayerPanel({
       className={isActive ? `${styles.panel} ${styles.active}` : styles.panel}
       data-testid={`player-panel-${playerId}`}
     >
-      <p className={styles.name}>{player.name.toUpperCase()}</p>
+      <p className={styles.name}>{player.name}</p>
       <Gallows lives={player.lives} mirrored={mirrored} />
-      <div
-        className={styles.icons}
-        data-testid="lives"
-        aria-label={`${player.lives} lives`}
-      >
-        {Array.from({ length: player.lives }, (_, i) => (
-          <img key={i} className={styles.icon} src="/assets/images/heart.png" alt="" />
-        ))}
-      </div>
-      <div
-        className={styles.icons}
-        data-testid="points"
-        aria-label={`${player.points} points`}
-      >
-        {Array.from({ length: player.points }, (_, i) => (
-          <img key={i} className={styles.icon} src="/assets/images/trophy.png" alt="" />
-        ))}
-      </div>
+      <IconRow count={player.lives} src={IMAGES.heart} label={`${player.lives} vidas`} />
+      <IconRow
+        count={player.points}
+        src={IMAGES.trophy}
+        label={`${player.points} puntos`}
+      />
     </div>
   )
 }

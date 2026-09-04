@@ -2,16 +2,22 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
   max-width: 32rem;
 }
 
+/*
+ * 28 letters is more than a touch keyboard can offer at the usual ~44px
+ * target size without pushing the rest of the game off screen, so this
+ * settles for the largest size that still fits comfortably: a bit under
+ * the ideal, well above the ~25px it would be without a floor.
+ */
 .key {
   font-family: inherit;
   font-weight: 700;
-  font-size: clamp(0.75rem, 2.5vw, 1rem);
-  width: clamp(1.6rem, 6vw, 2.1rem);
-  height: clamp(1.9rem, 7vw, 2.4rem);
+  font-size: clamp(0.8rem, 2.8vw, 1rem);
+  width: clamp(2.1rem, 7.5vw, 2.4rem);
+  height: clamp(2.3rem, 8vw, 2.6rem);
   border-radius: 0.4rem;
   border: none;
   background: var(--color-surface-strong);

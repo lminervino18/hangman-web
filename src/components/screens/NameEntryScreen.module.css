@@ -21,7 +21,6 @@
   width: 100%;
   font-size: clamp(1.1rem, 4vw, 1.5rem);
   text-align: center;
-  text-transform: uppercase;
   padding: 0.5em 0.75em;
   border-radius: 0.75rem;
   border: 2px solid var(--color-violet);
@@ -36,20 +35,4 @@
   margin: 0;
   font-size: clamp(0.75rem, 2.5vw, 0.95rem);
   color: var(--color-gray);
-}
-
-.button {
-  font-family: inherit;
-  font-size: clamp(1rem, 3vw, 1.15rem);
-  padding: 0.6em 1.75em;
-  border-radius: 999px;
-  border: none;
-  background: var(--color-violet);
-  color: white;
-  cursor: pointer;
-}
-
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }

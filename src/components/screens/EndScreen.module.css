@@ -13,28 +13,11 @@
 
 .banner {
   width: clamp(9rem, 40vw, 16rem);
-  height: auto;
+  aspect-ratio: 702 / 484;
 }
 
 .winner {
   margin: 0;
-  font-size: clamp(1.4rem, 6vw, 2.25rem);
+  font-size: clamp(1.3rem, 6vw, 2.1rem);
   color: var(--color-violet);
-}
-
-.lastWord {
-  margin: 0;
-  font-size: clamp(0.85rem, 3vw, 1.05rem);
-  color: var(--color-gray);
-}
-
-.button {
-  font-family: inherit;
-  font-size: clamp(1rem, 3vw, 1.2rem);
-  padding: 0.7em 2em;
-  border-radius: 999px;
-  border: none;
-  background: var(--color-violet);
-  color: white;
-  cursor: pointer;
 }

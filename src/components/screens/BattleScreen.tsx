@@ -3,6 +3,8 @@ import { playKeyPressSound } from '../../audio/audioManager'
 import { isGuessValid } from '../../domain/guess'
 import { maskedDisplay } from '../../domain/round'
 import type { GameState } from '../../domain/types'
+import { Button } from '../ui/Button'
+import { LastWordLink } from '../ui/LastWordLink'
 import { OnScreenKeyboard } from '../ui/OnScreenKeyboard'
 import { PlayerPanel } from '../ui/PlayerPanel'
 import styles from './BattleScreen.module.css'
@@ -18,8 +20,12 @@ export function BattleScreen({ state, onGuessChange, onGuessSubmit }: BattleScre
   const { round, players, activePlayer, currentInput } = state
 
   useEffect(() => {
-    inputRef.current?.focus()
-  }, [activePlayer])
+    // Auto-focusing on a touch device would pop the on-screen keyboard open
+    // as soon as the battle starts, fighting the game's own on-screen
+    // keyboard. Only desktop/pointer players get the convenience.
+    const prefersTouch = window.matchMedia('(pointer: coarse)').matches
+    if (!prefersTouch) inputRef.current?.focus()
+  }, [])
 
   const revealedLetters = new Set(
     round.cells.filter((cell) => cell.revealed).map((cell) => cell.letter),
@@ -53,18 +59,19 @@ export function BattleScreen({ state, onGuessChange, onGuessSubmit }: BattleScre
       />
 
       <div className={styles.center}>
-        <p className={styles.lastWord} data-testid="last-word">
-          {state.lastCompletedWord ? `LAST WORD: ${state.lastCompletedWord}` : ' '}
-        </p>
+        <LastWordLink word={state.lastCompletedWord} testId="last-word" />
         <p className={styles.turn} data-testid="turn-indicator">
-          Turn of {players[activePlayer].name.toUpperCase()}
+          Turno de {players[activePlayer].name}
         </p>
         <p className={styles.word} data-testid="masked-word">
           {maskedDisplay(round.cells)}
         </p>
-        <p className={styles.hint}>TRY ONE LETTER OR THE WHOLE WORD (1 SHOT)</p>
+        <p className={styles.hint}>
+          Probá una letra o arriesgá la palabra completa (1 intento)
+        </p>
         <p className={styles.wrongLetters} data-testid="wrong-entries">
-          {round.wrongEntries.join(', ')}
+          {round.wrongEntries.length > 0 &&
+            `Incorrectas: ${round.wrongEntries.join(', ')}`}
         </p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -75,11 +82,13 @@ export function BattleScreen({ state, onGuessChange, onGuessSubmit }: BattleScre
             value={currentInput}
             onChange={(event) => onGuessChange(event.target.value)}
             onKeyDown={() => playKeyPressSound()}
+            aria-label="Letra o palabra completa"
+            placeholder="Letra o palabra"
             autoComplete="off"
           />
-          <button type="submit" className={styles.submit} disabled={!isValidGuess}>
-            Guess
-          </button>
+          <Button type="submit" disabled={!isValidGuess}>
+            Adivinar
+          </Button>
         </form>
 
         <OnScreenKeyboard

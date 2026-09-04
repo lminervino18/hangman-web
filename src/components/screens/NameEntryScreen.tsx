@@ -3,11 +3,12 @@ import { playKeyPressSound } from '../../audio/audioManager'
 import { MAX_PLAYER_NAME_LENGTH } from '../../domain/constants'
 import { validatePlayerName } from '../../domain/playerName'
 import type { PlayerId } from '../../domain/types'
+import { Button } from '../ui/Button'
 import styles from './NameEntryScreen.module.css'
 
-const PLAYER_LABEL: Record<PlayerId, string> = {
-  player1: 'PLAYER 1',
-  player2: 'PLAYER 2',
+const PLAYER_LABELS: Record<PlayerId, string> = {
+  player1: 'Jugador 1',
+  player2: 'Jugador 2',
 }
 
 interface NameEntryScreenProps {
@@ -40,7 +41,7 @@ export function NameEntryScreen({
 
   return (
     <form className={styles.container} onSubmit={handleSubmit}>
-      <h2 className={styles.title}>INSERT YOUR NAME ({PLAYER_LABEL[target]})</h2>
+      <h2 className={styles.title}>Ingresá tu nombre ({PLAYER_LABELS[target]})</h2>
       <input
         ref={inputRef}
         className={styles.input}
@@ -48,12 +49,13 @@ export function NameEntryScreen({
         maxLength={MAX_PLAYER_NAME_LENGTH}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={() => playKeyPressSound()}
+        aria-label={`Nombre del ${PLAYER_LABELS[target].toLowerCase()}`}
         autoComplete="off"
       />
-      <p className={styles.hint}>2-9 characters</p>
-      <button type="submit" className={styles.button} disabled={!isValid}>
-        Continue
-      </button>
+      <p className={styles.hint}>Entre 2 y 9 caracteres</p>
+      <Button type="submit" disabled={!isValid}>
+        Continuar
+      </Button>
     </form>
   )
 }

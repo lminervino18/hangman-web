@@ -43,7 +43,7 @@ export function OnScreenKeyboard({
   onLetterClick,
 }: OnScreenKeyboardProps) {
   return (
-    <div className={styles.keyboard}>
+    <div className={styles.keyboard} role="group" aria-label="Teclado">
       {SPANISH_ALPHABET.map((letter) => {
         const isRevealed = revealedLetters.has(letter)
         const isWrong = wrongLetters.has(letter)

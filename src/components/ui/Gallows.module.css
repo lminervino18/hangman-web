@@ -1,6 +1,6 @@
 .image {
-  width: clamp(4.5rem, 12vw, 7rem);
-  height: auto;
+  width: clamp(3.5rem, 12vw, 7rem);
+  aspect-ratio: 360 / 415;
   display: block;
 }
 

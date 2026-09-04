@@ -1,5 +1,8 @@
-import { useEffect } from 'react'
+import { useKeyPress } from '../../hooks/useKeyPress'
 import type { GameState } from '../../domain/types'
+import { IMAGES } from '../../ui/images'
+import { Button } from '../ui/Button'
+import { LastWordLink } from '../ui/LastWordLink'
 import styles from './EndScreen.module.css'
 
 interface EndScreenProps {
@@ -8,26 +11,18 @@ interface EndScreenProps {
 }
 
 export function EndScreen({ state, onRestart }: EndScreenProps) {
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Enter') onRestart()
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onRestart])
+  useKeyPress('Enter', onRestart)
 
-  const winnerName = state.winner ? state.players[state.winner].name.toUpperCase() : ''
+  const winnerName = state.winner ? state.players[state.winner].name : ''
 
   return (
     <div className={styles.container}>
-      <img className={styles.banner} src="/assets/images/you-win-banner.png" alt="" />
+      <img className={styles.banner} src={IMAGES.youWinBanner} alt="" />
       <h1 className={styles.winner} data-testid="winner-name">
-        {winnerName}!
+        ¡{winnerName} gana la partida!
       </h1>
-      <p className={styles.lastWord}>LAST WORD: {state.lastCompletedWord}</p>
-      <button type="button" className={styles.button} onClick={onRestart}>
-        Play again
-      </button>
+      <LastWordLink word={state.lastCompletedWord} />
+      <Button onClick={onRestart}>Jugar de nuevo</Button>
     </div>
   )
 }

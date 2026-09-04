@@ -1,4 +1,5 @@
 import { LIVES_PER_ROUND } from '../../domain/constants'
+import { gallowsImage } from '../../ui/images'
 import styles from './Gallows.module.css'
 
 interface GallowsProps {
@@ -8,12 +9,12 @@ interface GallowsProps {
 }
 
 export function Gallows({ lives, mirrored = false }: GallowsProps) {
-  const wrongGuesses = Math.min(LIVES_PER_ROUND, LIVES_PER_ROUND - lives)
+  const wrongGuesses = LIVES_PER_ROUND - lives
   return (
     <img
       className={mirrored ? `${styles.image} ${styles.mirrored}` : styles.image}
-      src={`/assets/images/gallows/gallows-${wrongGuesses}.png`}
-      alt={`${wrongGuesses} of ${LIVES_PER_ROUND} wrong guesses`}
+      src={gallowsImage(wrongGuesses)}
+      alt={`${wrongGuesses} de ${LIVES_PER_ROUND} intentos fallidos`}
     />
   )
 }
