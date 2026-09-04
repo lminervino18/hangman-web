@@ -1,6 +1,8 @@
 # The Hangman Game
 
-A browser-based 2-player Hangman battle, ported from a Python/Pygame original.
+A browser-based Hangman game, ported from a Python/Pygame original. Play a local
+2-player battle, or go solo in the streak mode: how many words in a row can you guess?
+Installable as a PWA, playable offline.
 
 ## Preview
 
@@ -14,6 +16,7 @@ A browser-based 2-player Hangman battle, ported from a Python/Pygame original.
 - Howler.js
 - Vitest
 - Playwright
+- PWA (`vite-plugin-pwa`)
 
 ## Run locally
 

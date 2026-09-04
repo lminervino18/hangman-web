@@ -27,7 +27,7 @@ reset every round; the match is decided by whoever reaches 3 round wins first.
 | Original                                                 | Web equivalent                                                                                                   |
 | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `Game` (state + rules + rendering in one class)          | `src/domain/gameEngine.ts` (pure reducer, no rendering) + React components (rendering only)                      |
-| String-based window state (`'iw'`/`'isw'`/`'bw'`/`'ew'`) | `GameState.screen: 'intro' \| 'nameEntry' \| 'battle' \| 'end'`                                                  |
+| String-based window state (`'iw'`/`'isw'`/`'bw'`/`'ew'`) | Top-level `AppMode` ('menu'/'multiplayer'/'singleplayer') + `GameState.screen: 'nameEntry' \| 'battle' \| 'end'` |
 | `aux_functions.py`                                       | `src/domain/{guess,round,playerName,normalize}.ts`                                                               |
 | `Player` class                                           | `PlayerState` (plain data) in `src/domain/types.ts`                                                              |
 | Manual `pygame.event.get()` loop                         | React event handlers + controlled inputs                                                                         |
@@ -219,4 +219,76 @@ into `src/ui/images.ts`. Removed two pieces of dead code (`isSingleLetter`,
 an unnecessary `otherPlayer` export) and a redundant effect in `useGame`.
 The `MATCH_RESTARTED` action was renamed and broadened to `RETURN_TO_MENU`,
 since "restart the match" and "leave to the menu" turned out to be the same
-reset from any screen, not two different operations.
+reset from any screen, not two different operations. (This was superseded
+again in the next pass below, once "leave to the menu" and "play again with
+the same two players" turned out to need different actions after all.)
+
+## Singleplayer streak mode, sharing, and PWA
+
+A second pass added a genuinely distinct game mode alongside the original
+2-player battle, plus a handful of improvements shared by both.
+
+**Singleplayer: "how many words in a row?"** A new streak mode was added as
+its own domain module (`src/domain/singleplayer/`) rather than bolting a
+counter onto the battle mode — the two have different win/loss shapes (a
+running streak with no opponent, vs. a first-to-3 match) and forcing them
+through one reducer would have meant branching on "which mode is this" all
+through the battle logic. Logic genuinely shared between the two modes was
+extracted instead of duplicated: `LetterCell`/`RoundState`
+(`src/domain/sharedTypes.ts`), the word pool (`src/domain/wordPool.ts`), and
+`mistakeCount` (`src/domain/round.ts`). Singleplayer draws from the same
+56,328-word pool as the battle mode, at the project owner's explicit
+direction — a smaller curated list would have changed what the mode is.
+
+**Local word definitions: built, then explicitly removed.** A local
+short-definition feature (an expanded curated subset of the word list) was
+implemented mid-pass, then removed in full at the project owner's direct
+instruction once the trade-off was clear: verifying definition quality
+across a meaningful slice of a 56k-word list (many entries are inflected/
+conjugated forms with no clean, standalone definition) wasn't a can of worms
+worth opening for a bonus feature. `src/data/definitions.ts` and its test
+were deleted; the RAE dictionary link (`dle.rae.es`) — a pre-existing feature,
+independent of this — remains the only "what does this word mean" affordance
+in either mode.
+
+**Quick rematch (multiplayer).** `REMATCH` replaces the earlier
+`RETURN_TO_MENU` action from the previous pass: leaving to the main menu and
+starting a same-players rematch are different operations after all — a
+rematch keeps both names and jumps straight back into a fresh match, with no
+name re-entry.
+
+**Shared across both modes.**
+
+- **Tu recorrido** — a chip-per-word history strip on both end screens
+  (win/loss for the battle mode, success/fail for a run), each chip linking
+  straight to its RAE entry.
+- **Shareable result image** — a client-generated PNG (Canvas 2D, no
+  backend) summarizing the result, shared via the Web Share API where
+  available (`navigator.share`/`canShare({ files })`) with a preview dialog
+  that falls back to a direct download or copying share text when native
+  sharing isn't supported.
+- **Keyboard shortcuts** — `M` mute, `Esc` request-leave, `Enter`/`R`
+  continue-or-retry from a completed screen. Discoverable via native `title`
+  tooltips, which are simply absent on touch, so nothing needed to be hidden
+  explicitly for mobile.
+- **PWA** — installable, offline-capable via `vite-plugin-pwa`
+  (`generateSW`, `registerType: 'autoUpdate'`). Audio is deliberately left
+  out of the eager precache list so installing the app doesn't pull several
+  MB of sound up front; it's still fetched normally on first play and cached
+  from then on. Verified end-to-end against a production build: manifest
+  fetch, service worker activation, the page becoming SW-controlled after a
+  reload, and — with the network actually cut — a reload still rendering
+  the app shell correctly.
+
+**A React StrictMode bug worth documenting.** The singleplayer word picker
+is a stateful closure (it must avoid repeating a word within a run). Under
+`<StrictMode>`, React's development-mode double-invocation of `useState`
+lazy initializers called that closure twice for the same initial render,
+consuming two words instead of one and silently skipping the second — a bug
+that only ever showed up in development, never in a production build, which
+is exactly the kind of impurity StrictMode's double-invocation exists to
+catch. The idiomatic React fix (a `useRef` guard) was rejected by this
+project's `eslint-plugin-react-hooks` configuration ("cannot access refs
+during render"), so the initial run is memoized instead in a module-level
+`WeakMap` keyed by the dependency object (`src/hooks/useSingleplayerGame.ts`),
+which is pure with respect to render and needs no ref.
