@@ -18,22 +18,22 @@ export async function goToIntro(page: Page) {
 }
 
 export async function startMatch(page: Page, name1 = 'Ana', name2 = 'Beto') {
-  await page.getByRole('button', { name: 'Start' }).click()
+  await page.getByRole('button', { name: 'Comenzar' }).click()
   await page.getByRole('textbox').fill(name1)
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Continuar' }).click()
   await page.getByRole('textbox').fill(name2)
-  await page.getByRole('button', { name: 'Continue' }).click()
-  await page.getByText('TRY ONE LETTER OR THE WHOLE WORD').waitFor()
+  await page.getByRole('button', { name: 'Continuar' }).click()
+  await page.getByTestId('masked-word').waitFor()
 }
 
 export async function guessLetter(page: Page, letter: string) {
   await page.getByRole('button', { name: letter, exact: true }).click()
-  await page.getByRole('button', { name: 'Guess' }).click()
+  await page.getByRole('button', { name: 'Adivinar' }).click()
 }
 
 export async function guessWord(page: Page, word: string) {
   await page.getByRole('textbox').fill(word)
-  await page.getByRole('button', { name: 'Guess' }).click()
+  await page.getByRole('button', { name: 'Adivinar' }).click()
 }
 
 /** Filler letters guaranteed not to collide with the short test words below. */

@@ -15,17 +15,17 @@ test.describe('intro and menu', () => {
     await setupDeterministicGame(page, { words: ['GATO'] })
     await goToIntro(page)
 
-    await expect(page.getByText('WELCOME TO: HANGMAN GAME')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'The Hangman Game' })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Start' }).click()
-    await expect(page.getByText('INSERT YOUR NAME (PLAYER 1)')).toBeVisible()
+    await page.getByRole('button', { name: 'Comenzar' }).click()
+    await expect(page.getByRole('heading', { name: /Jugador 1/ })).toBeVisible()
   })
 
   test('pressing Enter on the intro screen also starts the game', async ({ page }) => {
     await setupDeterministicGame(page, { words: ['GATO'] })
     await goToIntro(page)
     await page.keyboard.press('Enter')
-    await expect(page.getByText('INSERT YOUR NAME (PLAYER 1)')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Jugador 1/ })).toBeVisible()
   })
 })
 
@@ -33,9 +33,9 @@ test.describe('name entry', () => {
   test('rejects a too-short name and accepts a valid one', async ({ page }) => {
     await setupDeterministicGame(page, { words: ['GATO'] })
     await goToIntro(page)
-    await page.getByRole('button', { name: 'Start' }).click()
+    await page.getByRole('button', { name: 'Comenzar' }).click()
 
-    const continueButton = page.getByRole('button', { name: 'Continue' })
+    const continueButton = page.getByRole('button', { name: 'Continuar' })
     await page.getByRole('textbox').fill('A')
     await expect(continueButton).toBeDisabled()
 
@@ -54,9 +54,9 @@ test.describe('name entry', () => {
     await goToIntro(page)
     await startMatch(page, 'Ana', 'Beto')
 
-    await expect(page.getByTestId('player-panel-player1')).toContainText('ANA')
-    await expect(page.getByTestId('player-panel-player2')).toContainText('BETO')
-    await expect(page.getByTestId('turn-indicator')).toContainText('ANA')
+    await expect(page.getByTestId('player-panel-player1')).toContainText('Ana')
+    await expect(page.getByTestId('player-panel-player2')).toContainText('Beto')
+    await expect(page.getByTestId('turn-indicator')).toContainText('Ana')
   })
 })
 
@@ -120,7 +120,7 @@ test.describe('gameplay: single letter guesses', () => {
       await guessLetter(page, letter)
     }
 
-    await expect(page.getByTestId('last-word')).toContainText('LAST WORD: GATO')
+    await expect(page.getByTestId('last-word')).toContainText('Última palabra: GATO')
     await expect(page.getByTestId('masked-word')).toHaveText('P _ _ _ _')
     await expect(
       page.getByTestId('player-panel-player1').locator('img[src$="heart.png"]'),
@@ -177,7 +177,7 @@ test.describe('gameplay: full-word guesses', () => {
 
     await guessWord(page, 'GATO')
 
-    await expect(page.getByTestId('last-word')).toContainText('LAST WORD: GATO')
+    await expect(page.getByTestId('last-word')).toContainText('Última palabra: GATO')
     await expect(
       page.getByTestId('player-panel-player1').locator('img[src$="trophy.png"]'),
     ).toHaveCount(1)
@@ -227,11 +227,91 @@ test.describe('match completion', () => {
     // Round 3: player1 active again, guess correctly for the match win.
     await guessWord(page, 'EF')
 
-    await expect(page.getByTestId('winner-name')).toContainText('ANA')
-    await expect(page.getByRole('button', { name: 'Play again' })).toBeVisible()
+    await expect(page.getByTestId('winner-name')).toContainText('Ana')
+    await expect(page.getByRole('button', { name: 'Jugar de nuevo' })).toBeVisible()
 
-    await page.getByRole('button', { name: 'Play again' }).click()
-    await expect(page.getByText('WELCOME TO: HANGMAN GAME')).toBeVisible()
+    await page.getByRole('button', { name: 'Jugar de nuevo' }).click()
+    await expect(page.getByRole('heading', { name: 'The Hangman Game' })).toBeVisible()
+  })
+})
+
+test.describe('returning to the main menu', () => {
+  test('leaving mid-game asks for confirmation, and canceling keeps the game intact', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, {
+      words: ['GATO'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+    await guessLetter(page, 'A')
+
+    await page.getByRole('button', { name: 'Menú principal' }).click()
+    const dialog = page.getByRole('alertdialog')
+    await expect(dialog).toBeVisible()
+
+    await dialog.getByRole('button', { name: 'Seguir jugando' }).click()
+    await expect(dialog).toBeHidden()
+    // The in-progress round survived: 'A' is still revealed.
+    await expect(page.getByTestId('masked-word')).toHaveText('G A _ _')
+  })
+
+  test('confirming leave discards the game and returns to the intro screen', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, {
+      words: ['GATO'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+
+    await page.getByRole('button', { name: 'Menú principal' }).click()
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Salir al menú' })
+      .click()
+
+    await expect(page.getByRole('heading', { name: 'The Hangman Game' })).toBeVisible()
+  })
+
+  test('pressing Escape cancels the leave-game confirmation', async ({ page }) => {
+    await setupDeterministicGame(page, {
+      words: ['GATO'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+
+    await page.getByRole('button', { name: 'Menú principal' }).click()
+    await expect(page.getByRole('alertdialog')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('alertdialog')).toBeHidden()
+  })
+})
+
+test.describe('last word dictionary lookup', () => {
+  test('links to the RAE dictionary for the completed word, opened safely in a new tab', async ({
+    page,
+  }) => {
+    await setupDeterministicGame(page, {
+      words: ['GATO', 'PERRO'],
+      random: 0,
+      startingPlayer: 'player1',
+    })
+    await goToIntro(page)
+    await startMatch(page)
+    await guessWord(page, 'GATO')
+
+    const link = page.getByRole('link', { name: /Buscar definición de GATO/i })
+    await expect(link).toHaveAttribute('href', 'https://dle.rae.es/gato')
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link).toHaveAttribute('rel', /noopener/)
+    await expect(link).toHaveAttribute('rel', /noreferrer/)
   })
 })
 
