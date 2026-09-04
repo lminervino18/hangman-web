@@ -166,3 +166,57 @@ kebab-case).
   behind a dynamic `import()` (loaded once the player reaches the battle
   screen) would trim initial load size further if that ever becomes a
   priority.
+
+## Post-launch quality pass
+
+A follow-up review localized the player-facing interface, closed a couple of
+mobile usability gaps, and added two features the original never had.
+
+**Localization.** The word list is Spanish, but the interface shipped in
+English at first — a real mixed-language interface, not a deliberate choice.
+Every player-facing string (menu, buttons, hints, turn indicator, end-game
+message, accessible labels) was translated to natural Spanish with normal
+capitalization, replacing the original's ALL CAPS labels. Two exceptions are
+intentional: the game's own title, "The Hangman Game", stays in English at
+the project owner's request, and the masked word/guess input keep uppercase
+display, since that's the standard hangman-board convention rather than a
+UI label. Source code, tests, comments, commit messages, and this document
+remain in English throughout, as they were from the start.
+
+**New features.**
+
+- **Última palabra** is now a link to the word's entry on the RAE's
+  Diccionario de la lengua española (`dle.rae.es`), opened in a new tab
+  (`rel="noopener noreferrer"`). The URL is built from the word as stored
+  internally (uppercase, de-accented per the original's own rules — see
+  "Preserved as-is — accent handling" above), so a small number of words
+  may land on RAE's near-match search rather than a direct hit; this is a
+  graceful degradation, not a broken link.
+- Players can return to the main menu mid-match via a new "Menú principal"
+  button. Leaving an in-progress round asks for confirmation first
+  (`¿Salir de la partida?`) so a stray tap can't discard a game; leaving
+  from name entry or the end screen (nothing to lose) skips the prompt.
+
+**Mobile fixes.** The guess text input was auto-focusing on every turn,
+which pops the on-screen keyboard open on touch devices and fights the
+game's own on-screen keyboard — it now only auto-focuses for non-touch
+(`pointer: coarse` check), leaving mobile to the tap keyboard as intended.
+The 28-key on-screen alphabet's touch targets were measured at ~25×30px on
+a 412px-wide Android viewport, well under a comfortable tap size; they're
+now ~34×37px, the largest that still fits without pushing the game off
+screen (28 letters can't hit the usual ~44px target without a much taller
+keyboard). The corner controls (mute, menu) were bumped to a flat 40px
+minimum, which had headroom to spare. `you-win-banner.png`, `intro-person.png`,
+and the gallows artwork were missing explicit dimensions, so a slow image
+load could briefly collapse them to zero height and shift the layout; all
+three now reserve their aspect ratio up front.
+
+**Refactor.** Extracted a shared `Button` component (removing ~5 duplicated
+button style blocks), a `LastWordLink` component (removing a duplicated
+"last word" block between the battle and end screens), a `useKeyPress` hook
+(removing duplicated Enter-key handling), and centralized image asset paths
+into `src/ui/images.ts`. Removed two pieces of dead code (`isSingleLetter`,
+an unnecessary `otherPlayer` export) and a redundant effect in `useGame`.
+The `MATCH_RESTARTED` action was renamed and broadened to `RETURN_TO_MENU`,
+since "restart the match" and "leave to the menu" turned out to be the same
+reset from any screen, not two different operations.
