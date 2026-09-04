@@ -19,21 +19,21 @@ The source was a single Pygame application (`Hangman Game/`):
 The game itself is a **2-player local "battle" hangman**, not the classic
 single-guesser version: players alternate turns guessing one letter at a time,
 or risk a one-shot guess at the whole word. A correct whole-word guess wins the
-round instantly; a *wrong* one instantly hands the round to the opponent. Lives
+round instantly; a _wrong_ one instantly hands the round to the opponent. Lives
 reset every round; the match is decided by whoever reaches 3 round wins first.
 
 ## Mapping: Pygame systems → web systems
 
-| Original | Web equivalent |
-|---|---|
-| `Game` (state + rules + rendering in one class) | `src/domain/gameEngine.ts` (pure reducer, no rendering) + React components (rendering only) |
-| String-based window state (`'iw'`/`'isw'`/`'bw'`/`'ew'`) | `GameState.screen: 'intro' \| 'nameEntry' \| 'battle' \| 'end'` |
-| `aux_functions.py` | `src/domain/{guess,round,playerName,normalize}.ts` |
-| `Player` class | `PlayerState` (plain data) in `src/domain/types.ts` |
-| Manual `pygame.event.get()` loop | React event handlers + controlled inputs |
-| `pygame.mixer` | `src/audio/audioManager.ts` (Howler.js) |
-| Fixed 975×609 `pygame.display` window | Responsive CSS layout (flexbox/grid + `clamp()`), no fixed canvas |
-| `assets/words.csv` parsed line-by-line at runtime | `data/words.csv` → `scripts/generate-words.ts` → `src/data/words.ts` (generated once, imported as a plain array) |
+| Original                                                 | Web equivalent                                                                                                   |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `Game` (state + rules + rendering in one class)          | `src/domain/gameEngine.ts` (pure reducer, no rendering) + React components (rendering only)                      |
+| String-based window state (`'iw'`/`'isw'`/`'bw'`/`'ew'`) | `GameState.screen: 'intro' \| 'nameEntry' \| 'battle' \| 'end'`                                                  |
+| `aux_functions.py`                                       | `src/domain/{guess,round,playerName,normalize}.ts`                                                               |
+| `Player` class                                           | `PlayerState` (plain data) in `src/domain/types.ts`                                                              |
+| Manual `pygame.event.get()` loop                         | React event handlers + controlled inputs                                                                         |
+| `pygame.mixer`                                           | `src/audio/audioManager.ts` (Howler.js)                                                                          |
+| Fixed 975×609 `pygame.display` window                    | Responsive CSS layout (flexbox/grid + `clamp()`), no fixed canvas                                                |
+| `assets/words.csv` parsed line-by-line at runtime        | `data/words.csv` → `scripts/generate-words.ts` → `src/data/words.ts` (generated once, imported as a plain array) |
 
 The domain layer (`src/domain/`) has zero dependency on React or the DOM — it's a
 pure `applyAction(state, action, deps) => { state, events }` reducer, which is
@@ -51,7 +51,7 @@ WORDS.length)]`), so this can't happen.
 **Fixed — inconsistent turn alternation after losing a round.** Tracing
 `_eval_battle_window` closely: every round-ending path calls `next_player()`
 exactly once (inside `restart_game`), so the starting player alternates each
-round — except the "ran out of lives" path, which *also* called
+round — except the "ran out of lives" path, which _also_ called
 `next_player()` once just before the lives check fired, then called
 `restart_game` (which flips again). Two flips cancel out, so that one path
 silently let the same player start the next round instead of alternating like
@@ -89,8 +89,8 @@ the escalating auto-volume. A small mute button was added for player comfort;
 it doesn't change gameplay.
 
 **Preserved as-is — the auto-volume ramp.** The original increases music
-volume by a fixed step whenever a round ends by a *completed word* (via
-letters or a correct full-word guess) or by a *wrong* full-word guess, but
+volume by a fixed step whenever a round ends by a _completed word_ (via
+letters or a correct full-word guess) or by a _wrong_ full-word guess, but
 **not** when a round ends by a player running out of lives. That's an
 inconsistency in the original, but not a bug that breaks anything — reasoned
 as "an intentional match-tension mechanic" is at least as plausible as

@@ -40,16 +40,16 @@ what changed, what was fixed, and what was intentionally preserved as-is.
 
 ## Technologies
 
-| Purpose | Choice |
-|---|---|
-| Language | TypeScript (strict) |
-| UI | React 19 |
-| Build tool | Vite |
-| Audio | Howler.js |
-| Unit tests | Vitest |
-| E2E tests | Playwright |
-| Lint / format | ESLint + Prettier |
-| Package manager | pnpm |
+| Purpose         | Choice              |
+| --------------- | ------------------- |
+| Language        | TypeScript (strict) |
+| UI              | React 19            |
+| Build tool      | Vite                |
+| Audio           | Howler.js           |
+| Unit tests      | Vitest              |
+| E2E tests       | Playwright          |
+| Lint / format   | ESLint + Prettier   |
+| Package manager | pnpm                |
 
 No game engine (Canvas/PixiJS/Phaser) — the game is screens, text, and sounds,
 not sprite-based real-time rendering, so a plain React + CSS UI is the
@@ -68,18 +68,18 @@ Opens at `http://localhost:5173`.
 
 ## Available scripts
 
-| Script | Description |
-|---|---|
-| `pnpm dev` | Start the Vite dev server |
-| `pnpm build` | Type-check and build for production (`dist/`) |
-| `pnpm preview` | Serve the production build locally |
-| `pnpm typecheck` | Type-check without emitting |
-| `pnpm lint` | Run ESLint |
-| `pnpm format` / `pnpm format:check` | Run / check Prettier |
-| `pnpm test` | Run unit tests (Vitest) |
-| `pnpm test:watch` | Run unit tests in watch mode |
-| `pnpm test:e2e` | Run E2E tests (Playwright) |
-| `pnpm generate:words` | Regenerate `src/data/words.ts` from `data/words.csv` |
+| Script                              | Description                                          |
+| ----------------------------------- | ---------------------------------------------------- |
+| `pnpm dev`                          | Start the Vite dev server                            |
+| `pnpm build`                        | Type-check and build for production (`dist/`)        |
+| `pnpm preview`                      | Serve the production build locally                   |
+| `pnpm typecheck`                    | Type-check without emitting                          |
+| `pnpm lint`                         | Run ESLint                                           |
+| `pnpm format` / `pnpm format:check` | Run / check Prettier                                 |
+| `pnpm test`                         | Run unit tests (Vitest)                              |
+| `pnpm test:watch`                   | Run unit tests in watch mode                         |
+| `pnpm test:e2e`                     | Run E2E tests (Playwright)                           |
+| `pnpm generate:words`               | Regenerate `src/data/words.ts` from `data/words.csv` |
 
 ## Testing
 
