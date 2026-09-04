@@ -10,6 +10,9 @@
   --color-surface-strong: rgba(255, 255, 255, 0.96);
 
   --font-game: 'Comic Neue', 'Comic Sans MS', 'Segoe UI', system-ui, sans-serif;
+
+  --z-controls: 10;
+  --z-modal: 100;
 }
 
 * {

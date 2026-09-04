@@ -1,0 +1,41 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 8, 30, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: var(--z-modal);
+}
+
+.dialog {
+  background: var(--color-surface-strong);
+  border-radius: 1.25rem;
+  padding: clamp(1.25rem, 5vw, 2rem);
+  max-width: 26rem;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
+  color: var(--color-violet);
+}
+
+.message {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: clamp(0.9rem, 3vw, 1.05rem);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
